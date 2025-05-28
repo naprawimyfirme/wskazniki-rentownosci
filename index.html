@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Wskaźników Rentowności</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .calculator-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1em;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .input-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .input-group {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .input-group:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .input-group h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-group h3::before {
+            content: "📊";
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        .form-field {
+            margin-bottom: 20px;
+        }
+
+        .form-field label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-field input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e1e8ed;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+            background: white;
+        }
+
+        .form-field input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .results {
+            display: none;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .results.show {
+            display: block;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .results h2 {
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 1.8em;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .result-item {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+            border-left: 4px solid #667eea;
+            transition: transform 0.3s ease;
+        }
+
+        .result-item:hover {
+            transform: translateY(-3px);
+        }
+
+        .result-item h4 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+
+        .result-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .result-description {
+            font-size: 0.9em;
+            color: #666;
+            line-height: 1.4;
+        }
+
+        .info-section {
+            margin-top: 40px;
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid #667eea;
+        }
+
+        .info-section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+        }
+
+        .info-list {
+            list-style: none;
+        }
+
+        .info-list li {
+            margin-bottom: 12px;
+            padding-left: 25px;
+            position: relative;
+            color: #555;
+            line-height: 1.5;
+        }
+
+        .info-list li::before {
+            content: "▶";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 20px;
+            }
+            
+            .input-section {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <div class="header">
+            <h1>Kalkulator Wskaźników Rentowności</h1>
+            <p>Oblicz kluczowe wskaźniki finansowe swojej firmy</p>
+        </div>
+        
+        <div class="content">
+            <div class="input-section">
+                <div class="input-group">
+                    <h3>Dane finansowe</h3>
+                    <div class="form-field">
+                        <label for="revenue">Przychody ze sprzedaży (PLN)</label>
+                        <input type="number" id="revenue" placeholder="np. 1000000" step="0.01">
+                    </div>
+                    <div class="form-field">
+                        <label for="netProfit">Zysk netto (PLN)</label>
+                        <input type="number" id="netProfit" placeholder="np. 150000" step="0.01">
+                    </div>
+                    <div class="form-field">
+                        <label for="grossProfit">Zysk brutto (PLN)</label>
+                        <input type="number" id="grossProfit" placeholder="np. 300000" step="0.01">
+                    </div>
+                    <div class="form-field">
+                        <label for="operatingProfit">Zysk operacyjny (EBIT) (PLN)</label>
+                        <input type="number" id="operatingProfit" placeholder="np. 200000" step="0.01">
+                    </div>
+                </div>
+                
+                <div class="input-group">
+                    <h3>Aktywa i kapitał</h3>
+                    <div class="form-field">
+                        <label for="totalAssets">Suma aktywów (PLN)</label>
+                        <input type="number" id="totalAssets" placeholder="np. 2000000" step="0.01">
+                    </div>
+                    <div class="form-field">
+                        <label for="equity">Kapitał własny (PLN)</label>
+                        <input type="number" id="equity" placeholder="np. 800000" step="0.01">
+                    </div>
+                    <div class="form-field">
+                        <label for="costOfSales">Koszt własny sprzedaży (PLN)</label>
+                        <input type="number" id="costOfSales" placeholder="np. 700000" step="0.01">
+                    </div>
+                </div>
+            </div>
+            
+            <button class="calculate-btn" onclick="calculateProfitability()">
+                🧮 Oblicz wskaźniki rentowności
+            </button>
+            
+            <div class="results" id="results">
+                <h2>📈 Wyniki analizy rentowności</h2>
+                <div class="result-grid" id="resultGrid">
+                    <!-- Wyniki będą tutaj wstawiane dynamicznie -->
+                </div>
+            </div>
+            
+            <div class="info-section">
+                <h3>📋 Interpretacja wskaźników</h3>
+                <ul class="info-list">
+                    <li><strong>ROS (Rentowność sprzedaży)</strong> - pokazuje ile zysku netto przypada na 1 zł przychodów</li>
+                    <li><strong>ROA (Rentowność aktywów)</strong> - mierzy efektywność wykorzystania aktywów do generowania zysku</li>
+                    <li><strong>ROE (Rentowność kapitału własnego)</strong> - wskazuje zwrot z inwestycji właścicieli</li>
+                    <li><strong>Rentowność brutto</strong> - pokazuje marżę na sprzedaży przed kosztami operacyjnymi</li>
+                    <li><strong>Rentowność operacyjna</strong> - mierzy efektywność podstawowej działalności</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function calculateProfitability() {
+            // Pobierz wartości z formularza
+            const revenue = parseFloat(document.getElementById('revenue').value) || 0;
+            const netProfit = parseFloat(document.getElementById('netProfit').value) || 0;
+            const grossProfit = parseFloat(document.getElementById('grossProfit').value) || 0;
+            const operatingProfit = parseFloat(document.getElementById('operatingProfit').value) || 0;
+            const totalAssets = parseFloat(document.getElementById('totalAssets').value) || 0;
+            const equity = parseFloat(document.getElementById('equity').value) || 0;
+            const costOfSales = parseFloat(document.getElementById('costOfSales').value) || 0;
+
+            // Walidacja danych
+            if (revenue === 0) {
+                alert('Proszę wprowadzić przychody ze sprzedaży');
+                return;
+            }
+
+            // Oblicz wskaźniki rentowności
+            const ros = revenue > 0 ? (netProfit / revenue) * 100 : 0; // Return on Sales
+            const roa = totalAssets > 0 ? (netProfit / totalAssets) * 100 : 0; // Return on Assets
+            const roe = equity > 0 ? (netProfit / equity) * 100 : 0; // Return on Equity
+            const grossMargin = revenue > 0 ? (grossProfit / revenue) * 100 : 0; // Marża brutto
+            const operatingMargin = revenue > 0 ? (operatingProfit / revenue) * 100 : 0; // Marża operacyjna
+            const netMargin = revenue > 0 ? (netProfit / revenue) * 100 : 0; // Marża netto
+
+            // Przygotuj wyniki
+            const results = [
+                {
+                    name: 'ROS - Rentowność sprzedaży',
+                    value: ros.toFixed(2) + '%',
+                    description: 'Zysk netto / Przychody × 100%',
+                    interpretation: getROSInterpretation(ros)
+                },
+                {
+                    name: 'ROA - Rentowność aktywów',
+                    value: roa.toFixed(2) + '%',
+                    description: 'Zysk netto / Suma aktywów × 100%',
+                    interpretation: getROAInterpretation(roa)
+                },
+                {
+                    name: 'ROE - Rentowność kapitału',
+                    value: roe.toFixed(2) + '%',
+                    description: 'Zysk netto / Kapitał własny × 100%',
+                    interpretation: getROEInterpretation(roe)
+                },
+                {
+                    name: 'Marża brutto',
+                    value: grossMargin.toFixed(2) + '%',
+                    description: 'Zysk brutto / Przychody × 100%',
+                    interpretation: getGrossMarginInterpretation(grossMargin)
+                },
+                {
+                    name: 'Marża operacyjna',
+                    value: operatingMargin.toFixed(2) + '%',
+                    description: 'Zysk operacyjny / Przychody × 100%',
+                    interpretation: getOperatingMarginInterpretation(operatingMargin)
+                },
+                {
+                    name: 'Marża netto',
+                    value: netMargin.toFixed(2) + '%',
+                    description: 'Zysk netto / Przychody × 100%',
+                    interpretation: getNetMarginInterpretation(netMargin)
+                }
+            ];
+
+            // Wyświetl wyniki
+            displayResults(results);
+        }
+
+        function displayResults(results) {
+            const resultGrid = document.getElementById('resultGrid');
+            const resultsContainer = document.getElementById('results');
+            
+            resultGrid.innerHTML = '';
+            
+            results.forEach(result => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                resultItem.innerHTML = `
+                    <h4>${result.name}</h4>
+                    <div class="result-value">${result.value}</div>
+                    <div class="result-description">${result.description}</div>
+                    <div style="margin-top: 10px; font-size: 0.85em; color: #888;">
+                        ${result.interpretation}
+                    </div>
+                `;
+                resultGrid.appendChild(resultItem);
+            });
+            
+            resultsContainer.classList.add('show');
+            resultsContainer.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Funkcje interpretacji wskaźników
+        function getROSInterpretation(ros) {
+            if (ros > 15) return '🟢 Bardzo dobra rentowność';
+            if (ros > 10) return '🟡 Dobra rentowność';
+            if (ros > 5) return '🟠 Średnia rentowność';
+            return '🔴 Niska rentowność';
+        }
+
+        function getROAInterpretation(roa) {
+            if (roa > 10) return '🟢 Bardzo efektywne wykorzystanie aktywów';
+            if (roa > 5) return '🟡 Dobre wykorzystanie aktywów';
+            if (roa > 2) return '🟠 Średnie wykorzystanie aktywów';
+            return '🔴 Niskie wykorzystanie aktywów';
+        }
+
+        function getROEInterpretation(roe) {
+            if (roe > 20) return '🟢 Bardzo dobry zwrot dla właścicieli';
+            if (roe > 15) return '🟡 Dobry zwrot dla właścicieli';
+            if (roe > 10) return '🟠 Średni zwrot dla właścicieli';
+            return '🔴 Niski zwrot dla właścicieli';
+        }
+
+        function getGrossMarginInterpretation(margin) {
+            if (margin > 50) return '🟢 Bardzo dobra marża brutto';
+            if (margin > 30) return '🟡 Dobra marża brutto';
+            if (margin > 20) return '🟠 Średnia marża brutto';
+            return '🔴 Niska marża brutto';
+        }
+
+        function getOperatingMarginInterpretation(margin) {
+            if (margin > 20) return '🟢 Bardzo dobra marża operacyjna';
+            if (margin > 15) return '🟡 Dobra marża operacyjna';
+            if (margin > 10) return '🟠 Średnia marża operacyjna';
+            return '🔴 Niska marża operacyjna';
+        }
+
+        function getNetMarginInterpretation(margin) {
+            if (margin > 15) return '🟢 Bardzo dobra marża netto';
+            if (margin > 10) return '🟡 Dobra marża netto';
+            if (margin > 5) return '🟠 Średnia marża netto';
+            return '🔴 Niska marża netto';
+        }
+
+        // Animacja wprowadzania danych
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.parentElement.style.transform = 'translateY(-2px)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.parentElement.style.transform = 'translateY(0)';
+            });
+        });
+    </script>
+</body>
+</html>
