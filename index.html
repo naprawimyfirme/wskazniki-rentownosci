@@ -322,6 +322,28 @@
     </div>
 
     <script>
+        // Funkcja do wysyłania wysokości iframe do rodzica
+        function sendHeightToParent() {
+            const height = document.body.scrollHeight;
+            window.parent.postMessage({ iframeHeight: height }, '*');
+        }
+
+        // Wysyłaj wysokość przy ładowaniu i zmianie rozmiaru okna
+        window.addEventListener('load', sendHeightToParent);
+        window.addEventListener('resize', sendHeightToParent);
+
+        // Obserwuj zmiany w DOM (gdy pojawiają się wyniki)
+        const observer = new MutationObserver(function() {
+            setTimeout(sendHeightToParent, 100); // małe opóźnienie dla animacji
+        });
+        
+        observer.observe(document.body, {
+            childList: true,
+            subtree: true,
+            attributes: true,
+            attributeFilter: ['class', 'style']
+        });
+
         function calculateProfitability() {
             // Pobierz wartości z formularza
             const revenue = parseFloat(document.getElementById('revenue').value) || 0;
@@ -412,6 +434,9 @@
             
             resultsContainer.classList.add('show');
             resultsContainer.scrollIntoView({ behavior: 'smooth' });
+            
+            // Wyślij nową wysokość po pokazaniu wyników
+            setTimeout(sendHeightToParent, 300); // po zakończeniu animacji
         }
 
         // Funkcje interpretacji wskaźników
